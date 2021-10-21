@@ -1,13 +1,11 @@
 from google.cloud import datastore
 from flask import Flask, request
-import json
-import constants
-import lodging
-import guest
+import boat
+import load
 
 app = Flask(__name__)
-app.register_blueprint(lodging.bp)
-app.register_blueprint(guest.bp)
+app.register_blueprint(boat.bp)
+app.register_blueprint(load.bp)
 
 @app.route('/')
 def index():
