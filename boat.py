@@ -5,7 +5,7 @@ client = datastore.Client()
 
 bp = Blueprint('boat', __name__, url_prefix='/boats')
 
-# get/create boats
+# get all/create boats
 @bp.route('', methods=['POST', 'GET'])
 def boats_post_get():
 
@@ -57,3 +57,24 @@ def boats_post_get():
 
     else:
         return 'Method not recognized'
+
+# get/delete boat by ID
+@bp.route('/<id>', methods=['GET', 'DELETE'])
+def boat_id_get_delete():
+
+    # get a boat by ID
+    if request.method == 'GET':
+        boat_key = client.key('boats', int(id))
+        boat = client.get(key=boat_key)
+
+        # boat id was not found 
+        if not boat:
+            error = {"Error": "No boat with this boat_id exists"}
+            return jsonify(error), 404
+
+        for load in boat['loads']:
+            load['self'] = f"{request.url_root}loads/{str(load['i'])}"
+
+        boat['id'] = id
+        boat['self'] = request.url
+        return jsonify(boat), 200
