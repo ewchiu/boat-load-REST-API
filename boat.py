@@ -60,7 +60,7 @@ def boats_post_get():
 
 # get/delete boat by ID
 @bp.route('/<id>', methods=['GET', 'DELETE'])
-def boat_id_get_delete():
+def boat_id_get_delete(id):
 
     # get a boat by ID
     if request.method == 'GET':
@@ -78,3 +78,6 @@ def boat_id_get_delete():
         boat['id'] = id
         boat['self'] = request.url
         return jsonify(boat), 200
+
+    else:
+        return 'Method not recognized'
