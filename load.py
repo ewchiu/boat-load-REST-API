@@ -65,7 +65,7 @@ def loads_get_delete(id):
             return jsonify(error), 404
 
         if load['carrier']:
-            load['carrier']['self'] = f"{request.url_root}loads/{str(load['carrier']['id'])} "
+            load['carrier']['self'] = f"{request.url_root}boats/{str(load['carrier']['id'])}"
 
         load['id'] = id
         load['self'] = request.url

@@ -73,7 +73,7 @@ def boat_id_get_delete(id):
             return jsonify(error), 404
 
         for load in boat['loads']:
-            load['self'] = f"{request.url_root}loads/{str(load['i'])}"
+            load['self'] = f"{request.url_root}loads/{str(load['id'])}"
 
         boat['id'] = id
         boat['self'] = request.url
