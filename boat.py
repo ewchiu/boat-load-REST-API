@@ -41,7 +41,7 @@ def boats_post_get():
 
         if iterator.next_page_token:
             next_offset = limit + offset
-            next_url = f"{request.base_url}?limit={limit}&offset={offset}"
+            next_url = f"{request.base_url}?limit={limit}&offset={next_offset}"
         else:
             next_url = None
 
