@@ -3,6 +3,8 @@ from flask import Flask, request
 import boat
 import load
 
+# REST API by Eric Chiu
+# Simulates a port with boats that carry loads
 
 app = Flask(__name__)
 app.register_blueprint(boat.bp)
