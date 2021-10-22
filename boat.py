@@ -29,3 +29,31 @@ def boats_post_get():
         new_boat["self"] = f"{request.url}/{str(new_boat.key.id)}"
 
         return jsonify(new_boat), 201
+
+    # method to get all boats
+    elif request.method == 'GET':
+        query = client.query(kind="boats")
+        limit = int(request.args.get('limit', '3'))
+        offset = int(request.args.get('offset', '0'))
+        iterator = query.fetch(limit=limit, offset=offset)
+        pages = iterator.pages
+        results = list(next(pages))
+
+        if iterator.next_page_token:
+            next_offset = limit + offset
+            next_url = f"{request.base_url}?limit={limit}&offset={offset}"
+        else:
+            next_url = None
+
+        for boat in results:
+            boat['id'] = boat.key.id
+        
+        output = {"boats": results}
+
+        if next_url:
+            output['next'] = next_url
+
+        return jsonify(output)
+
+    else:
+        return 'Method not recognized'
