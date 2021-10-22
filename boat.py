@@ -53,7 +53,7 @@ def boats_post_get():
         if next_url:
             output['next'] = next_url
 
-        return jsonify(output)
+        return jsonify(output), 200
 
     else:
         return 'Method not recognized'
