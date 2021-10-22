@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from google.cloud import datastore
 
 client = datastore.Client()
@@ -81,3 +81,38 @@ def boat_id_get_delete(id):
 
     else:
         return 'Method not recognized'
+
+@bp.route('/<boat_id>/loads/<load_id>', methods=['PUT', 'DELETE'])
+def add_delete_loads(boat_id, load_id):
+
+    # add load to boat
+    if request.method == 'PUT':
+        boat_key = client.key('boats', int(boat_id))
+        boat = client.get(key=boat_key)
+        load_key = client.key("loads", int(load_id))
+        load = client.get(key=load_key)
+
+        # boat/load id was not found 
+        if not boat or not load:
+            error = {"Error": "No boat or load with this id exists"}
+            return jsonify(error), 404
+
+        # check if load is already assigned to a boat
+        if load['carrier']:
+            error = {"Error": "This load already has a boat"}
+            return jsonify(error), 403
+        
+        # check if boat already has this load assigned
+        for load in boat['loads']:
+            if load['id'] == load.key.id:
+                error = {"Error": "This load already has a boat"}
+                return jsonify(error), 403
+
+        # add load to boat and vice versa
+        load['carrier'] = {'id': boat.key.id, 'name': boat['name']}
+        boat['loads'].append({'id': load.key.id})
+
+        client.put(load)
+        client.put(boat)
+        return Response(status=204)
+        
