@@ -115,4 +115,30 @@ def add_delete_loads(boat_id, load_id):
         client.put(load)
         client.put(boat)
         return Response(status=204)
+
+    # delete load from boat
+    elif request.method == 'DELETE':
+        boat_key = client.key('boats', int(boat_id))
+        boat = client.get(key=boat_key)
+        load_key = client.key("loads", int(load_id))
+        load = client.get(key=load_key)
+
+        # boat/load id was not found 
+        if not boat or not load:
+            error = {"Error": "No boat or load with this id exists"}
+            return jsonify(error), 404
+
+        # load is not assigned to boat
+        if load['carrier'] is None or load['carrier']['id'] != boat.key.id:
+            error = {"Error": "The load isn't on this boat"}
+            return jsonify(error), 404
+
+        boat['loads'].remove({'id': load.key.id})
+        load['carrier'] = None
+        client.put(boat)
+        client.put(load)
+        return Response(status=204)
+
+    else:
+        return 'Method not recognized'
         
