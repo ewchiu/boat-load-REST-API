@@ -79,6 +79,28 @@ def boat_id_get_delete(id):
         boat['self'] = request.url
         return jsonify(boat), 200
 
+    # delete a boat
+    elif request.method == 'DELETE':
+        boat_key = client.key('boats', int(id))
+        boat = client.get(key=boat_key)
+
+        # boat id was not found 
+        if not boat:
+            error = {"Error": "No boat with this boat_id exists"}
+            return jsonify(error), 404
+
+        # remove boat from loads
+        if len(boat['loads']) > 0:
+
+            for load in boat['loads']:
+                load_key = client.key('loads', load['id'])
+                retrieved_load = client.get(key=load_key)
+                retrieved_load['carrier'] = None
+                client.put(retrieved_load)
+
+        client.delete(boat_key)
+        return Response(status=204)
+
     else:
         return 'Method not recognized'
 
