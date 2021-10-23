@@ -163,4 +163,35 @@ def add_delete_loads(boat_id, load_id):
 
     else:
         return 'Method not recognized'
-        
+
+@bp.route('/<id>/loads', methods=['GET'])
+def get_loads_for_boat(id):
+
+    # get all loads for boat
+    if request.method == 'GET':
+        boat_key = client.key('boats', int(id))
+        boat = client.get(key=boat_key)
+        loads = []
+
+        # boat id was not found 
+        if not boat:
+            error = {"Error": "No boat with this boat_id exists"}
+            return jsonify(error), 404
+
+        if len(boat['loads']) > 0:
+
+            for load in boat['loads']:
+                load_key = client.key("loads", int(load['id']))
+                retrieved_load = client.get(key=load_key)
+                retrieved_load['id'] = retrieved_load.key.id
+                retrieved_load['self'] = f"{request.url_root}loads/{str(retrieved_load.key.id)}"
+                retrieved_load['carrier']['self'] = f"{request.url_root}boats/{str(retrieved_load['carrier']['id'])}"
+                loads.append(retrieved_load)
+
+            return jsonify(loads), 200
+
+        else:
+            return Response(status=204)
+    
+    else:
+        return 'Method not recognized'
