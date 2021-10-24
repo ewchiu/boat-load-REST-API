@@ -124,16 +124,20 @@ def add_delete_loads(boat_id, load_id):
             error = {"Error": "This load already has a boat"}
             return jsonify(error), 403
         
-        # check if boat already has this load assigned
-        for load in boat['loads']:
-            if load['id'] == load.key.id:
-                error = {"Error": "This load already has a boat"}
-                return jsonify(error), 403
+        if 'loads' in boat:
+            load_list = boat['loads']
 
-        # add load to boat and vice versa
+            for each_load in load_list:
+                if each_load['id'] == load.key.id:
+                    error = {"Error": "This load already has a boat"}
+                    return jsonify(error), 403
+            
+            boat['loads'].append({'id': load.key.id})
+
+        else:
+            boat['loads'] = {'id': load.key.id}
+
         load['carrier'] = {'id': boat.key.id, 'name': boat['name']}
-        boat['loads'].append({'id': load.key.id})
-
         client.put(load)
         client.put(boat)
         return Response(status=204)
@@ -155,10 +159,11 @@ def add_delete_loads(boat_id, load_id):
             error = {"Error": "The load isn't on this boat"}
             return jsonify(error), 404
 
-        boat['loads'].remove({'id': load.key.id})
-        load['carrier'] = None
-        client.put(boat)
-        client.put(load)
+        if 'loads' in boat:
+            boat['loads'].remove({'id': load.key.id})
+            load['carrier'] = None
+            client.put(boat)
+            client.put(load)
         return Response(status=204)
 
     else:
