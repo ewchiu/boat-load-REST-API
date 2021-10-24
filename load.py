@@ -25,7 +25,7 @@ def loads_get_post():
         new_load['self'] = f"{request.url}/{str(new_load.key.id)}"
         return jsonify(new_load), 201
 
-    # get a load
+    # get all loads
     if request.method == 'GET':
         query = client.query(kind='loads')
         limit = int(request.args.get('limit', '3'))
@@ -42,6 +42,10 @@ def loads_get_post():
 
         for load in results:
             load['id'] = load.key.id
+            load['self'] = f"{request.url_root}loads/{str(load.key.id)}"
+
+            if load['carrier']:
+                load['carrier']['self'] = f"{request.url_root}boats/{str(load['carrier']['id'])}"
         
         output = {"loads": results}
 
